@@ -1,0 +1,3 @@
+{
+  "Policy": "{\"Version\": \"2012-10-17\", \"Id\": \"PolicyID\", \"Statement\": [{\"Sid\": \"StmtForS3ToSQS\", \"Effect\": \"Allow\", \"Principal\": {\"Service\": \"s3.amazonaws.com\"}, \"Action\": \"SQS:SendMessage\", \"Resource\": \"arn:aws:sqs:us-east-1:211125692741:queue-s2110849\", \"Condition\": {\"ArnLike\": {\"aws:SourceArn\": \"arn:aws:s3:::store-device-images-s2110849\"}}}]}"
+}

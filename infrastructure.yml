@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: queue-s2110849
+
+  EntryTableS2110849:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: EntryTable-s2110849
+      AttributeDefinitions:
+        - AttributeName: ImageName
+          AttributeType: S
+      KeySchema:
+        - AttributeName: ImageName
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  VehicleTableS2110849:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: VehicleTable-s2110849
+      AttributeDefinitions:
+        - AttributeName: VehicleID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: VehicleID
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  SQSTriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: process-image-function-s2110849
+      Runtime: python3.8
+      Handler: lambda_handler.lambda_handler
+      Code:
+        S3Bucket: zipstorefunctions-s2110849
+        S3Key: process-image-function-s2110849.zip
+      Role: arn:aws:iam::211125692741:role/LabRole
+
+  DynamoDBTriggerLambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: send-alerte-function-s2110849
+      Runtime: python3.8
+      Handler: lambda_handler.lambda_handler 
+      Code:
+        S3Bucket: zipstorefunctions-s2110849
+        S3Key: send-alerte-function-s2110849.zip
+      Role: arn:aws:iam::211125692741:role/LabRole
+
+  SQSEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 10
+      EventSourceArn: !GetAtt Queue.Arn
+      FunctionName: !Ref SQSTriggerLambda
+
+  DynamoDBEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 100
+      EventSourceArn: !GetAtt EntryTableS2110849.StreamArn
+      FunctionName: !Ref DynamoDBTriggerLambda
+      StartingPosition: TRIM_HORIZON

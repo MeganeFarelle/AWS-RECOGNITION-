@@ -1,0 +1,8 @@
+{
+
+    "QueueConfigurations": [{
+        "Id": "event-s2110849",
+        "QueueArn": "arn:aws:sqs:us-east-1:211125692741:queue-s2110849",
+        "Events": ["s3:ObjectCreated:*"]
+    }]
+}
